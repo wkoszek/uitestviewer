@@ -42,7 +42,7 @@ https://www.ibm.com/docs/en/elm/6.0.1?topic=rjsaet-adding-screen-captures-create
 
 Maybe we can have a standardized way of capturing this output?
 
-## Example of pytests that we could support
+## Functional specs
 
 The idea is simple: software engineers captures screenshots in the unit tests. For example, the code
 could look like this:
@@ -75,19 +75,27 @@ PyTest has two major concepts: test suite and a test.
 Test suite is just a list of tests.
 There's usually one test suite, but sometimes there can be very many for complicated projects.
 For this project, let's call "run" a situation where we run all available test suites.
+
 This test run must have a run ID: a name, let's say "ui-tr-yymmdd", and it's picked when you're running your python3 unit tests.
 Think of it as a process ID (PID) of this very unique run.
 
-Proposed endpoints:
-- GET to `/runid` will show all run IDs submitted
-- GET to '/' will render a list of all run IDs via HTML
-- POST to `/runid` will create a new runID. Submit "X-App-Name" as name of the app
+Every run, we would:
+- create a new unique runID (if I run all the tests on my laptop or CI server, it'd all be unique runIDs)
+- every run should preferably have some additional meta-info, for example: hostname of the computer where the runID was created
+- upon creation of runID at the beginning of a test run, runID would be reused for all the tests
+- all tests would upload their screenshots to this runID
+- upload of screenshots would happen with a test name, so that a reasonable hierarchy in HTML can be created.
 
-Then every screenshot submitted to a given runID will allow the server to show appropriate JPEGs.
 
-Proposed endpoint for upload:
-- POST to `/runid/<ID>/upload` will cause the upload of the image to the server
+### Proposed endpoints:
+- GET to `/` will render a list of all run IDs via HTML
+- POST to `/runid` will create a new runID. Submit "X-App-Name" as name of the app. Add this to DB.
+- POST to `/runid/<ID>/upload` will cause the upload of the image to the server. Returned should be `uploadID`. Add this to DB.
   - required headers: `X-Test-Name` will have a test name
+- GET to `/runid/<ID>` will show a pretty HTML page with thumbnails
+  - this get will need `uploadID` of all items for this `runID`. Just get it from DB
+
+Then every screenshot submitted to a given `runID` will allow the server to show appropriate JPEGs.
 
 ## Proposed UI
 
@@ -127,6 +135,20 @@ Test another:
 +------------+     +-------------+
 
 ```
+
+In other words, if there are 3 tests with 2, 5 and 3 screenshots respectively, the nice layout could be:
+
+```
+t1 t1
+
+t5 t5 t5 t5 t5
+
+t3 t3 t3
+```
+
+There t1/t5/t3 represent screenshots of respective tests.
+
+Upon clicking of any of the thumbnail, it'd be great if big image popped up.
 
 ## Security
 
