@@ -81,13 +81,52 @@ Think of it as a process ID (PID) of this very unique run.
 Proposed endpoints:
 - GET to `/runid` will show all run IDs submitted
 - GET to '/' will render a list of all run IDs via HTML
-- POST to `/runid` will create a new runID
+- POST to `/runid` will create a new runID. Submit "X-App-Name" as name of the app
 
 Then every screenshot submitted to a given runID will allow the server to show appropriate JPEGs.
 
 Proposed endpoint for upload:
 - POST to `/runid/<ID>/upload` will cause the upload of the image to the server
   - required headers: `X-Test-Name` will have a test name
+
+## Proposed UI
+
+First screen after visiting main page:
+
+```
+Run IDs:
+
+RunID   App name    Time created
+c72DIA  app_name    feb23 2023
+zx28aD  app_name    feb23 2023
+bd63ij  app_name    feb24 2023
+```
+
+Once you click a RunID, you're routed to a page with a bunch of thumbnails:
+
+```
+Run IDs -> bd63ij
+
+# App name
+
+Test test_purchase (took N s)
+  Started: <time>
+  Ended: <time>
+
++------------+     +-------------+
+| purch1.jpg |     |  purch2.jpg |
++------------+     +-------------+
+
+Test another:
+
++------------+     +-------------+
+| purch3.jpg |     |  purch4.jpg |
++------------+     +-------------+
++------------+     +-------------+
+| purch5.jpg |     |  purch6.jpg |
++------------+     +-------------+
+
+```
 
 ## Security
 
